@@ -1,0 +1,14 @@
+#player { border: 1px solid #ccc; padding: 10px; width: 300px; margin: 0 auto; text-align: center;}
+#track-info { margin: 10px 0;}#player-controls { margin: 20px 0;}
+#player-controls button { padding: 5px; margin: 0 5px;}
+#play-button, #pause-button { display: none;}
+#audio { width: 100%;}
+/* Активные кнопки */
+#play-button.active, 
+#pause-button.active { display: inline;}
+/* Текст кнопки "Play" изменяем на "Playing" */
+#play-button.active span { display: none;}
+#play-button.active:before { content: "Playing"; display: inline;}
+/* Текст кнопки "Pause" изменяем на "Paused" */
+#pause-button.active span { display: none;}
+#pause-button.active:before { content: "Paused"; display: inline;}

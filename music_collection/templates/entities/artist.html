@@ -1,0 +1,17 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Artists page</h1>
+
+    {% if artist %}
+    <ul>
+
+      <li>
+        <a>{{ artist.name }}</a>
+      </li>
+    </ul>
+
+    {% else %}
+      <p>Artists not found..</p>
+    {% endif %}
+{% endblock %}

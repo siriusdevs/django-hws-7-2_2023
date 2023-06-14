@@ -1,0 +1,31 @@
+{% extends "base_generic.html" %}
+<!-- Add additional CSS in static file -->
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+{% block content %}
+<h1>Welcome to your profile, linapush!</h1>
+  <head>
+    <title>Profile Page - linapush</title>
+  </head>
+  <body>
+    <nav>
+    </nav>
+    <h2>Your profile data:</h2>
+    <ul>
+      <li>username: linapush</li>
+      <li>first name:</li>
+      <li>last name:</li>
+      <li>email: linapush2002@gmail.com</li>
+      <li>money: 99,99</li>
+    </ul>
+    <h2>Your tracks:</h2>
+    <ul>
+      <li>track1</li>
+      <li>track2</li>
+    </ul>
+    <h2>Amount:</h2>
+    <li><a href="{% url 'subscription_purchase_page' %}">Purchase</a></li>
+  
+  </body>
+</html>
+{% endblock %}

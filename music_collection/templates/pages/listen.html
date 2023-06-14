@@ -1,0 +1,67 @@
+{% extends "base_generic.html" %}
+{% block content %}
+
+<head>
+  <title>My Music Player</title>
+  <h2>Player</h2>
+ 
+ {% load static %}
+ <link rel="stylesheet" href="{% static 'collection_app/static/player.css' %}">
+ <script src="{% static 'collection_app/static/player.js' %}"></script>
+ </head>
+
+<audio controls>
+  <source src="{{ MEDIA_URL }}audio_files/I Had a Feeling - TrackTribe.mp3" type="audio/mpeg">
+</audio>
+  
+
+<!-- <body>
+ <div id="player">
+  <div id="track-info">{{ track.title }} - {{ track.artist }}</div>
+  <div id="player-controls">
+   {% load static %}
+   <audio controls>
+     <source src="{{ MEDIA_URL }}audio_files/I Had a Feeling - TrackTribe.mp3" type="audio/mpeg">
+   </audio>
+  </div>
+ </div> -->
+
+
+ <script>
+  const playButton = document.getElementById("play-button");
+  const pauseButton = document.getElementById("pause-button");
+  const previousButton = document.getElementById("previous-button");
+  const nextButton = document.getElementById("next-button");
+  const audio = document.getElementById("audio");
+
+  playButton.addEventListener("click", () => {
+    audio.play();
+  });
+
+  pauseButton.addEventListener("click", () => {
+    audio.pause();
+  });
+
+  previousButton.addEventListener("click", () => {
+   
+  });
+
+  nextButton.addEventListener("click", () => {
+    
+  });
+</script>
+</body>
+</html>
+
+<br>
+<div id="controls">
+  <div class="audio-track"><div class="time"></div></div>
+  <button class="play">Play</button>
+  <button class="pause">Pause</button>
+  <button class="prev">&#60;prev</button>
+  <button class="next">next&#62;</button>
+</div>
+<br>
+
+<iframe align="top" frameborder="0" style="border:10px purple;width:100%;height:450px;" width="100%" height="450" src="https://music.yandex.ru/iframe/#playlist/linapush2002pushkareva/3">Слушайте <a href='https://music.yandex.ru/users/linapush2002pushkareva/playlists/3'>Мне нравится</a> — <a href='https://music.yandex.ru/users/linapush2002pushkareva'>linapush2002pushkareva</a> на Яндекс Музыке</iframe>
+{% endblock %}

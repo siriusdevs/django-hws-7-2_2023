@@ -1,0 +1,17 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Albums page</h1>
+
+    {% if album %}
+    <ul>
+
+      <li>
+        <a>{{ album.title }}</a>
+      </li>
+    </ul>
+
+    {% else %}
+      <p>Albums not found..</p>
+    {% endif %}
+{% endblock %}

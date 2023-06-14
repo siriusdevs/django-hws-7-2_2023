@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block title %}<title>Music collection</title>{% endblock %}
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'nav.css/' %}">
+</head>
+<body>
+  {% block sidebar %}
+  <nav class="navbar navbar-expand-md
+    ">
+    <!-- <button>
+    <span class="navbar-toggler-icon"></span>
+    </button> -->
+    
+    <div class="collapse navbar-collapse" id="main-navigation">
+      <nav class="menu">
+              
+      <div style='text-align:center; width:100%'>
+      <a href="{% url 'homepage' %}">Home</a>
+      |
+      <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+      |
+      <a class="nav-link" href="{% url 'tracks' %}">Tracks</a>
+      |
+      <a class="nav-link" href="{% url 'artists' %}">Artists</a>
+      |
+      <a class="nav-link" href="{% url 'genres' %}">Genres</a>
+      |
+      <a class="nav-link" href="{% url 'albums' %}">Albums</a>
+      </div>
+        {% if not user.is_authenticated %}
+        <li class="nav-item">
+          <div style='text-align:right; width:100%'>
+          <a class="nav-link" href="{% url 'login' %}">Login</a>
+        </div>
+        </li>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <div style='text-align:right; width:100%'>
+          <a class="nav-link" href="{% url 'logout' %}?next={{ request.path }}">Logout</a>
+        </div>
+        {% endif %}
+
+      </ul>
+    </div>
+  </nav>
+  {% endblock %}
+  {% block content %}{% endblock %}
+  {% if is_paginated %}
+  <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+  
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+  
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+  </div>
+  {% endif %}
+</body>
+</html>

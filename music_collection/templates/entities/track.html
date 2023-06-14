@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Track page</h1>
+
+    {% if track %}
+      <ul>
+          <li>Title: {{ track.title }}</li>
+          <li>Duration: {{ track.duration }}</li>
+          <li>Year: {{ track.year }}</li>
+          <li>Country: {{ track.country }}</li>
+          <li>Rating: {{ track.rating }}</li>
+      </ul>
+      {% if client_has_track %}
+        <h4>You already have this track. <a href="{% url 'player' %}?id={{ track.id }}"> Read it now!</a></h4>
+      {% else %}
+        <h4>You do not have this one. You can <a href="{% url 'purchase' %}?id={{ track.id }}">buy it.</a></h4>
+      {% endif %}
+    {% else %}
+      <p>Track not found..</p>
+    {% endif %}
+{% endblock %}
