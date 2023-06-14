@@ -85,10 +85,23 @@ def track_list(request):
         artist_name = request.POST.get("artist_name", "Artist")
         # Сохранение данных в базу данных или файл
         # Отображение страницы с результатами
-        return HttpResponse(f"<h2>Title: {track_name}  Year: {artist_name}</h2>"), #333333333333render(request, 'tracks_list.html', {'track_name': track_name, 'artist_name': artist_name})
+        return HttpResponse(f"<h2>Title: {track_name}  Year: {artist_name}</h2>"), #render(request, 'tracks_list.html', {'track_name': track_name, 'artist_name': artist_name})
     else:
         # Отображение страницы с формой для ввода данных
         return render(request, 'tracks.html')
+
+
+
+class Permission(permissions.BasePermission):
+    safe_methods = ('GET', 'HEAD', 'OPTIONS', 'PATCH')
+    unsafe_methods = ('POST', 'PUT', 'DELETE')
+
+    def has_permission(self, request, _):
+        if request.method in self.safe_methods:
+            return bool(request.user and request.user.is_authenticated)
+        elif request.method in self.unsafe_methods:
+            return bool(request.user and request.user.is_superuser)
+        return False
 
 @auth_decorators.login_required
 def listen_music(request):
@@ -224,6 +237,17 @@ def entity_view(cls_model, name, template):
             context=context,
         )
     return view
+    
+TracksListView = collection_view(Tracks, 'tracks', config.TRACKS_LIST)
+AlbumsListView = collection_view(Albums, 'albums', config.ALBUMS_LIST)
+ArtistsListView = collection_view(Artists, 'artists', config.ARTISTS_LIST)
+GenresListView = collection_view(Genres, 'genres', config.GENRES_LIST)
+
+track_view = entity_view(Tracks, 'track', config.TRACK_ENTITY)
+genre_view = entity_view(Genres, 'genre', config.GENRE_ENTITY)
+artist_view = entity_view(Artists, 'artist', config.ARTIST_ENTITY)
+album_view = entity_view(Albums, 'album', config.ALBUM_ENTITY)
+
 
 
 @transaction.atomic
@@ -282,8 +306,8 @@ def subscription_purchase_page(request):
             client.save()
 
         return HttpResponseRedirect(reverse('track'))
-
-#TODO  добавить в Клиента поля 
+    
+    #TODO  добавить в Клиента поля 
     return render(
         request,
         template_name=config.TEMPLATE_PURCHASE_SUBSCRIPTION,
@@ -300,18 +324,9 @@ def subscription_purchase_page(request):
     )
 #TODO добавить в Клиента поля 
 
-class Permission(permissions.BasePermission):
-    safe_methods = ('GET', 'HEAD', 'OPTIONS', 'PATCH')
-    unsafe_methods = ('POST', 'PUT', 'DELETE')
 
-    def has_permission(self, request, _):
-        if request.method in self.safe_methods:
-            return bool(request.user and request.user.is_authenticated)
-        elif request.method in self.unsafe_methods:
-            return bool(request.user and request.user.is_superuser)
-        return False
 
-#GET
+#GET/POST?
 def query_from_request(cls_serializer, request) -> dict:
     query = {}
     for field in cls_serializer.Meta.fields:
@@ -331,80 +346,73 @@ def create_viewset(cls_model, serializer, order_field):
             query = query_from_request(serializer, self.request)
             queryset = cls_model.objects.filter(**query) if query else cls_model.objects.all()
             return queryset.order_by(order_field)
+        
+        def delete(self, request):
+            def response_from_objects(num):
+                if not num:
+                    message = f'DELETE for model {cls_model.__name__}: query did not match any objects'
+                    return Response(message, status=status_codes.HTTP_404_NOT_FOUND)
+                status = status_codes.HTTP_204_NO_CONTENT if num == 1 else status_codes.HTTP_200_OK
+                return Response(f'DELETED {num} instances of {cls_model.__name__}', status=status)
 
+            query = query_from_request(serializer, request)
+            if query:
+                instances = cls_model.objects.all().filter(**query)
+                num_objects = len(instances)
+                try:
+                    instances.delete()
+                except Exception as error:
+                    return Response(error, status=status_codes.HTTP_500_INTERNAL_SERVER_ERROR)
+                return response_from_objects(num_objects)
+            return Response('DELETE has got no query', status=status_codes.HTTP_400_BAD_REQUEST)
 
-        # def delete(self, request):
-        #     def response_from_objects(num):
-        #         if not num:
-        #             message = f'DELETE for model {cls_model.__name__}: query did not match any objects'
-        #             return Response(message, status=status_codes.HTTP_404_NOT_FOUND)
-        #         status = status_codes.HTTP_204_NO_CONTENT if num == 1 else status_codes.HTTP_200_OK
-        #         return Response(f'DELETED {num} instances of {cls_model.__name__}', status=status)
+        def put(self, request):
+            # gets id from query and updates instance with this ID, creates new if doesnt find any.
+            def serialize(target):
+                attrs = parsers.JSONParser().parse(request)
+                model_name = cls_model.__name__
+                if target:
+                    serialized = serializer(target, data=attrs, partial=True)
+                    status = status_codes.HTTP_200_OK
+                    body = f'PUT has updated {model_name} instance'
+                else:
+                    serialized = serializer(data=attrs, partial=True)
+                    status = status_codes.HTTP_201_CREATED
+                    body = f'PUT has created new {model_name} instance'
+                if not serialized.is_valid():
+                    return (
+                        f'PUT could not serialize query {query} into {model_name}',
+                        status_codes.HTTP_400_BAD_REQUEST,
+                    )
+                try:
+                    model_obj = serialized.save()
+                except Exception as error:
+                    return error, status_codes.HTTP_500_INTERNAL_SERVER_ERROR
+                body = f'{body} with id={model_obj.id}'
+                return body, status
 
-        #     query = query_from_request(serializer, request)
-        #     if query:
-        #         instances = cls_model.objects.all().filter(**query)
-        #         num_objects = len(instances)
-        #         try:
-        #             instances.delete()
-        #         except Exception as error:
-        #             return Response(error, status=status_codes.HTTP_500_INTERNAL_SERVER_ERROR)
-        #         return response_from_objects(num_objects)
-        #     return Response('DELETE has got no query', status=status_codes.HTTP_400_BAD_REQUEST)
+            query = query_from_request(serializer, request)
+            target_id = query.get('id', '')
+            if not target_id:
+                return Response('PUT has got no id', status=status_codes.HTTP_400_BAD_REQUEST)
+            try:
+                target_object = cls_model.objects.get(id=target_id)
+            except Exception:
+                target_object = None
+            message, status = serialize(target_object)
+            return Response(message, status=status)
 
-        # def put(self, request):
-        #     # gets id from query and updates instance with this ID, creates new if doesnt find any.
-        #     def serialize(target):
-        #         attrs = parsers.JSONParser().parse(request)
-        #         model_name = cls_model.__name__
-        #         if target:
-        #             serialized = serializer(target, data=attrs, partial=True)
-        #             status = status_codes.HTTP_200_OK
-        #             body = f'PUT has updated {model_name} instance'
-        #         else:
-        #             serialized = serializer(data=attrs, partial=True)
-        #             status = status_codes.HTTP_201_CREATED
-        #             body = f'PUT has created new {model_name} instance'
-        #         if not serialized.is_valid():
-        #             return (
-        #                 f'PUT could not serialize query {query} into {model_name}',
-        #                 status_codes.HTTP_400_BAD_REQUEST,
-        #             )
-        #         try:
-        #             model_obj = serialized.save()
-        #         except Exception as error:
-        #             return error, status_codes.HTTP_500_INTERNAL_SERVER_ERROR
-        #         body = f'{body} with id={model_obj.id}'
-        #         return body, status
-
-        #     query = query_from_request(serializer, request)
-        #     target_id = query.get('id', '')
-        #     if not target_id:
-        #         return Response('PUT has got no id', status=status_codes.HTTP_400_BAD_REQUEST)
-        #     try:
-        #         target_object = cls_model.objects.get(id=target_id)
-        #     except Exception:
-        #         target_object = None
-        #     message, status = serialize(target_object)
-        #     return Response(message, status=status)
 
     return CustomViewSet
 
 TracksViewSet = create_viewset(Tracks, TrackSerializer, 'title')
 ArtistsViewSet = create_viewset(Artists, ArtistSerializer, 'name')
 GenresViewSet = create_viewset(Genres, GenreSerializer, 'title')
-AlbumsViewSet = create_viewset(Albums, AlbumSerializer, 'name')
+AlbumsViewSet = create_viewset(Albums, AlbumSerializer, 'title')
 
 
-TracksListView = collection_view(Tracks, 'tracks', config.TRACKS_LIST)
-AlbumsListView = collection_view(Albums, 'albums', config.ALBUMS_LIST)
-ArtistsListView = collection_view(Artists, 'artists', config.ARTISTS_LIST)
-GenresListView = collection_view(Genres, 'genres', config.GENRES_LIST)
 
-track_view = entity_view(Tracks, 'tracks', config.TRACK_ENTITY)
-genre_view = entity_view(Genres, 'genres', config.GENRE_ENTITY)
-artist_view = entity_view(Artists, 'artists', config.ARTIST_ENTITY)
-album_view = entity_view(Albums, 'albums', config.ALBUM_ENTITY)
+
 
 # 1 Проверить, что функция соответсвует отображение во views
 # 2 Проверить запросы/ они есть в библиотеке + Postman
