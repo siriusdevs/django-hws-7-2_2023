@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %}
+
+<!DOCTYPE html>
+{% load static %}
+
+{% block content %}
+    <h1>Artists page</h1>
+
+    {% if artist %}
+    <ul>
+        <li>Name: {{ artist.name }}</li>
+        <li>Birth date: {{ artist.birth_date }}</li>
+        <li>Country: {{ artist.country }}</li>
+        <li>Education: {{ artist.education }}</li> 
+
+    </ul>
+
+    {% else %}
+      <p>Artists not found..</p>
+    {% endif %}
+{% endblock %}
+
+<!-- <li>Photo: <img src={{ Artists.my_image.url }}></li> -->

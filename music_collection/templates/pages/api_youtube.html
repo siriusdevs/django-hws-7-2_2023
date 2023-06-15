@@ -1,0 +1,19 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <form action="/youtube library/" method="get">
+        {{ form }}
+        <input type="submit" value="Get track">
+    </form>
+
+    {% if track_data %}
+        <ul>
+            {% for key, value in track_data.items %} 
+                <li>{{key}} - {{value}}</li>
+            {% endfor %}
+        </ul>
+
+    {% else %}
+        <p>No information to show.</p>
+    {% endif %}
+{% endblock %}

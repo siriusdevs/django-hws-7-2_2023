@@ -1,0 +1,12 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h1>Track list</h1>
+<!-- добавить ссылку на скачивание треков из открытой библиотеки -->
+<ul>
+{% for track in tracks %}
+    <li>{{ track.title }} - {{ track.artist }} <a href="{{ track.file.url }}">Download</a></li>
+{% endfor %}
+</ul>
+{% endblock %}
+

@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %} <!-- директивы шаблонизатора. данный шаблон расширяет базовый шаблон base_generic.html. -->
+
+{% block content %} <!-- данный шаблон расширяет базовый шаблон base_generic.html. -->
+    {% if form_errors %} <!-- проверяет наличие ошибок в форме и, если они есть, выводит их. -->
+        <h4>Form field got some errors:</h4> 
+        {% for key,value in form_errors.items %} <!-- перебирает все ошибки в форме и выводит их. --> 
+            {{ key }}: {{ value }} <!-- отображения содержимого переменных -->
+        {% endfor %}
+    {% endif %}
+    {% if request.user.is_authenticated %} <!--проверяет, залогинен ли пользователь, и если да, выводит соответствующее сообщение, иначе отображает форму регистрации.-->
+        <h5>
+            You are already logged in.
+            Check out our <a href="{% url 'tracks' %}">track</a>!
+        </h5>
+    {% else %}
+        <form action="{% url 'register' %}" method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Register">
+        </form>
+    {% endif %}
+{% endblock %}
