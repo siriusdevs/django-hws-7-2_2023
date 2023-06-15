@@ -1,31 +1,32 @@
 {% extends "base_generic.html" %}
-<!-- Add additional CSS in static file -->
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+
 {% block content %}
-<h1>Welcome to your profile, linapush!</h1>
-  <head>
-    <title>Profile Page - linapush</title>
-  </head>
-  <body>
-    <nav>
-    </nav>
-    <h2>Your profile data:</h2>
-    <ul>
-      <li>username: linapush</li>
-      <li>first name:</li>
-      <li>last name:</li>
-      <li>email: linapush2002@gmail.com</li>
-      <li>money: 99,99</li>
-    </ul>
-    <h2>Your tracks:</h2>
-    <ul>
-      <li>track1</li>
-      <li>track2</li>
-    </ul>
-    <h2>Amount:</h2>
-    <li><a href="{% url 'subscription_purchase_page' %}">Purchase</a></li>
-  
-  </body>
-</html>
+    {% if user_data %}
+        <h4>Your profile data:</h4>
+        <ul>
+            {% for key, value in user_data.items %} 
+                <li>{{key}}: {{value}}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if books %}
+        <h4>Your books:</h4>
+        <ul>
+            {% for book in books %}
+                <li> {{ book }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h4>You do not have books yet!</h4>
+    {% endif %}
+
+    {% if form_errors %}
+        <h5>{{ form_errors }}</h5>
+    {% endif %}
+    <form action="/profile/" method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Add funds">
+    </form>
 {% endblock %}

@@ -2,11 +2,11 @@
 
 {% block content %}
 
-    <h4> You are going to get: {{ track.title }}</h4>
-    <h5> The price: {{ track.price }}</h5>
+    <h4> You want to purchase a subscription to add tracks</h4>
+    <h5> The price: {{ track.subscription_price }}</h5>
     <h5> Funds available: {{ funds }} </h5>
     {% if enough_money %}
-        <form action="/purchase/?id={{ track.id }}" method="POST">
+        <form action="/purchase/subscription/" method="POST">
             {% csrf_token %}
             <input type="Submit" value="Buy">
         </form>

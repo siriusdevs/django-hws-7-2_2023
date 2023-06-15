@@ -411,9 +411,20 @@ GenresViewSet = create_viewset(Genres, GenreSerializer, 'title')
 AlbumsViewSet = create_viewset(Albums, AlbumSerializer, 'title')
 
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+
+@csrf_exempt
+def my_view(request):
+    if request.method == 'POST':
+        # Обработка POST-запроса
+        return HttpResponse('POST request processed.')
+    else:
+        # Обработка других типов запросов
+        return HttpResponse('Request processed.')
 
 
-
+############################################################
 # 1 Проверить, что функция соответсвует отображение во views
 # 2 Проверить запросы/ они есть в библиотеке + Postman
 # 3 Написать тесты на рест

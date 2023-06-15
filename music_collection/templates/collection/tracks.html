@@ -2,23 +2,22 @@
 
 {% block content %}
     <h1>Tracks</h1>
-    <form method="post" action="rest/track_list">
+
+    <!-- <form method="post" action="rest/track_list">
       <p>Title:<br> <input name="title" /></p>
         <p>Artist:<br> <input name="artist" /></p>
         <input type="submit" value="Send" />
-    </form>
+    </form> -->
 
     {% if tracks_list %}
     <ul>
-
-        {% csrf_token %}
 
       {% for track in tracks_list %}
       <li>
         <a href="{% url 'tracks'%}?id={{track.id}}">{{ track.title }}</a>
       </li>
-      
       {% endfor %}
+      
       <a href="{% url 'listen'%}?id={{track.id}}">{{ track.title }}</a>
     </ul>
 

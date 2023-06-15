@@ -15,7 +15,7 @@ urlpatterns = [
     path('listen/', views.listen_music, name='listen'),
 
     path('tracks/', views.TracksListView.as_view(), name='tracks'),
-    path('track_list', views.track_list, name='track_list'),
+    path('tracks/rest/track_list', views.track_list, name='track_list'),
     path('artists/', views.ArtistsListView.as_view(), name='artists'),
     path('genres/', views.GenresListView.as_view(), name='genres'),
     path('albums/', views.AlbumsListView.as_view(), name='albums'),

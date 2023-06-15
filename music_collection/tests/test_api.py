@@ -16,8 +16,6 @@ class ViewSetsTests(TestCase):
         (Artists, '/rest/Artists/', {'name': 'name', 'birth_date': '1995-01-01'}, {'education': 'musician'}),
         (Albums, '/rest/Albums/', {'title': 'name', 'year': 1990}, {'category': 'new_category'}),
         (Client, '/rest/Client/', {'user': 'username'}, {'money': 100})
-
-
     )
 
     def setUp(self):

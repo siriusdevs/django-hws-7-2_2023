@@ -8,7 +8,8 @@
 
       {% for genre in genres_list %}
       <li>
-        <a href="{% url 'genre'%}?id={{genre.id}}">{{ genre.name }}</a> ({{genre.description}})
+        <a href="{% url 'genre'%}?id={{genre.id}}">{{ genre.title }}</a> 
+        <!-- ({{genre.description}}) -->
       </li>
       {% endfor %}
     </ul>

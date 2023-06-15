@@ -10,10 +10,9 @@ from django.utils.translation import gettext_lazy as _
 from django.conf.global_settings import AUTH_USER_MODEL
 from mutagen.mp3 import MP3
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
-# settings.configure( 
-#     ROOT_URLCONF=__name__,
-# )
+fs = FileSystemStorage(location=settings.MEDIA_ROOT)
 
 # Create your models here.
 
@@ -75,6 +74,7 @@ class Artists(UUIDMixin, CreatedMixin, ModifiedMixin):
     birth_date = models.DateField(blank=True)
     country = models.CharField(max_length=100, blank=True)
     education = models.TextField(max_length=100, blank=True)
+    my_image = models.ImageField(storage=fs, blank=True, null=True)
 
     def __str__(self):
         return f'{self.name}' 
@@ -117,6 +117,7 @@ class Genres(UUIDMixin, CreatedMixin, ModifiedMixin):
 class Client(CreatedMixin, ModifiedMixin):
     user = models.OneToOneField(AUTH_USER_MODEL, on_delete=models.CASCADE, primary_key=True)
     tracks = models.ManyToManyField(Tracks, blank=True)
+    subscription_expiry = models.DateField(null=True, blank=True)
     money = models.DecimalField(
     max_digits=config.DECIMAL_MAX_DIGITS,
     decimal_places=config.DECIMAL_PLACES,
@@ -130,41 +131,41 @@ class Client(CreatedMixin, ModifiedMixin):
 # Таблицы связи
 
 class TrackGenre(UUIDMixin, CreatedMixin):
-    track = models.ForeignKey(Tracks, on_delete=models.CASCADE, null=True )
-    genre = models.ForeignKey(Genres, on_delete=models.CASCADE, null=True )
+    track = models.ForeignKey(Tracks, on_delete=models.CASCADE, null=True, blank=True)
+    genre = models.ForeignKey(Genres, on_delete=models.CASCADE, null=True, blank=True )
 
     class Meta:
         db_table = '"collection"."track_genre"'
         unique_together = (('track', 'genre'),)
 
 class AlbumGenre(UUIDMixin, CreatedMixin):
-    album = models.ForeignKey(Albums, on_delete=models.CASCADE, null=True )
-    genre = models.ForeignKey(Genres, on_delete=models.CASCADE, null=True )
+    album = models.ForeignKey(Albums, on_delete=models.CASCADE, null=True, blank=True )
+    genre = models.ForeignKey(Genres, on_delete=models.CASCADE, null=True, blank=True )
 
     class Meta:
         db_table = '"collection"."album_genre"'
         unique_together = (('album', 'genre'),)
 
 class TrackAlbum(UUIDMixin, CreatedMixin):
-    artist = models.ForeignKey(Artists, on_delete=models.CASCADE, null=True )
-    album = models.ForeignKey(Albums, on_delete=models.CASCADE, null=True )
-    track = models.ForeignKey(Tracks, on_delete=models.CASCADE, null=True )
+    artist = models.ForeignKey(Artists, on_delete=models.CASCADE, null=True, blank=True )
+    album = models.ForeignKey(Albums, on_delete=models.CASCADE, null=True, blank=True )
+    track = models.ForeignKey(Tracks, on_delete=models.CASCADE, null=True, blank=True )
 
     class Meta:
         db_table = '"collection"."track_album"'
         unique_together = (('track', 'album'),)
 
 class ArtistAlbum(UUIDMixin, CreatedMixin):
-    artist = models.ForeignKey(Artists, on_delete=models.CASCADE, null=True )
-    album = models.ForeignKey(Albums, on_delete=models.CASCADE, null=True )
+    artist = models.ForeignKey(Artists, on_delete=models.CASCADE, null=True, blank=True )
+    album = models.ForeignKey(Albums, on_delete=models.CASCADE, null=True, blank=True )
 
     class Meta:
         db_table = '"collection"."artist_album"'
         unique_together = (('artist', 'album'),)
 
 class TrackClient(UUIDMixin, CreatedMixin):
-    track = models.ForeignKey(Tracks, on_delete=models.CASCADE, null=True )
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True )
+    track = models.ForeignKey(Tracks, on_delete=models.CASCADE, null=True, blank=True )
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True, blank=True )
 
     class Meta:
         db_table = '"collection"."track_client"'
